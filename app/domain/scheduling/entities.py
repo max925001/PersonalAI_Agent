@@ -1,0 +1,1 @@
+# AvailabilitySlot, InterviewBooking entities

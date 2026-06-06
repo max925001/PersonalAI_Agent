@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # 1. Local MongoDB fallback (can be overridden by setting MONGO_URI to Atlas in env)
+  db:
+    image: mongo:6.0
+    container_name: ai_shivam_mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # 2. MongoDB Web Viewer UI
+  mongo-express:
+    image: mongo-express:latest
+    container_name: ai_shivam_mongo_express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: db
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: pass
+    depends_on:
+      - db
+
+  # 3. Cache & Background Task Broker
+  redis:
+    image: redis:7-alpine
+    container_name: ai_shivam_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # 4. Vector Database
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ai_shivam_qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  # 5. FastAPI Backend Application Server
+  api:
+    build: .
+    container_name: ai_shivam_api
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: "AI Shivam"
+      APP_ENV: "development"
+      DEBUG: "true"
+      PORT: 8000
+      HOST: "0.0.0.0"
+      API_V1_PREFIX: "/api/v1"
+      LOG_LEVEL: "INFO"
+      JWT_SECRET_KEY: "ai_shivam_development_secret_key_change_me_in_production"
+      
+      # Connect to MongoDB Atlas (if MONGO_URI is set in environment) or local mongo container
+      MONGO_URI: "mongodb://db:27017/ai_twin_db"
+      MONGO_DB_NAME: "ai_twin_db"
+      
+      REDIS_URL: "redis://redis:6379/0"
+      QDRANT_HOST: "qdrant"
+      QDRANT_PORT: 6333
+      QDRANT_COLLECTION_NAME: "shivam_kb"
+      GEMINI_API_KEY: "your-gemini-key"
+      S3_BUCKET_NAME: "bucket"
+      AWS_ACCESS_KEY_ID: "aws-id"
+      AWS_SECRET_ACCESS_KEY: "aws-key"
+      AWS_REGION_NAME: "us-east-1"
+    depends_on:
+      - db
+      - redis
+      - qdrant
+
+volumes:
+  mongo_data:
+  qdrant_data:

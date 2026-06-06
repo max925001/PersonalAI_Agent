@@ -1,0 +1,99 @@
+--- Formatted Context String ---
+[1] Source Type: addition
+Source ID: 65ae5ba6-5b05-4271-ac50-bed8cc455352
+Repository: ai-shivam-core
+Content:
+Shivam Pandey is a Senior Staff Backend Engineer who has successfully created the following 5 projects:
+1. LMS (Learning Management System): A robust system for managing courses, tracking progress, and online education.
+2. AI Digital Twin (AI Shivam): An advanced agentic digital twin RAG platform using LangGraph, FastAPI, and Qdrant.
+3. E-Commerce Microservices API: A scalable distributed API system built using FastAPI for e-commerce transactions.
+4. mern-chat-app: A real-time chat application created using MongoDB, Express, React, and Node.js.
+5. hacktoberfest2024: A repository of open-source challenges and projects built for Hacktoberfest 2024.
+All 5 projects highlight Shivam's capabilities in building production-ready scalable backends, full-stack systems, and RAG pipelines.
+----------------------------------------
+[2] Source Type: additional_information
+Source ID: f10f8dc7-8090-4e3c-a733-46b9b61f3c50
+Repository: N/A
+Content:
+i am shivam pandey i know about MERN stack ,fastapi,redis ,langchain.langgraph
+----------------------------------------
+[3] Source Type: resume
+Source ID: 379006c5-7674-446e-a008-0529ba6a6b63
+Repository: N/A
+Content:
+Shivam Pandey
++91-9696843853
+|
+shivam969684@gmail.com
+|
+LinkedIn
+|
+GitHub
+Summary
+Final-year B.Tech Information Technology student at MMMUT with 3 internship experiences across backend development and full-stack
+web applications. Shipped products used by 500+ users and solved 350+ problems on LeetCode and GeeksForGeeks. Experienced in
+FastAPI, PostgreSQL, Redis, React.js, and Node.js.
+Education
+Madan Mohan Malaviya University of Technology
+November 2022 – May 2026
+Bachelor of Technology in Information Technology
+Gorakhpur, India
+K R Education Centre
+2019 – 2020
+Intermediate, Class XII, Science
+Kanpur, India
+Experience
+Predusk Technologies Private Limited | LinkedIn
+February
+– Present
+Backend Developer Intern
+Onsite, Jaipur, India
+ Developed REST API endpoints in FastAPI with Pydantic v2, covering request validation, response serialization, and dependency
+injection.
+----------------------------------------
+[4] Source Type: repository
+Source ID: 7c321567-a969-4e24-84b3-5bf9e6326632
+Repository: mern-chat-app
+Content:
+- [@Piyush-eon](https://github.com/piyush-eon)
+----------------------------------------
+[5] Source Type: repository
+Source ID: e0924f2e-270d-4593-9cdf-4b81a3c06744
+Repository: hacktoberfest2024
+Content:
+### 🛠️ Tech Stack
+This project uses the following technologies:
+
+- **Programming Languages:** JavaScript, Python, C#
+- **Frameworks/Libraries:** React.js, .NET
+- **Database:** None (for the current challenges)
+- **Tools:** Git, Node.js
+
+### 📚 Prerequisites
+Before getting started, make sure you have the following tools installed on your local machine:
+
+- **Node.js**
+- **Git**
+- **IDE (e.g., Visual Studio Code)**
+
+### ⚡ How to Get Started 🚀
+Contributing to this project is easy and rewarding. Follow these steps to make your first contribution!
+
+1. **Fork the Repository** 🍴  
+   Click the Fork button at the top right corner of this page to create a copy of this repository on your GitHub account.
+
+2. **Clone Your Forked Repository** 📂  
+   After forking, clone the repository to your local machine using the command:
+
+   ```bash
+   git clone https://github.com/strivedi4u/hacktoberfest2024.git
+   ```
+
+3. **Navigate to the Project Directory**  
+   ```bash
+   cd hacktoberfest2024
+   ```
+----------------------------------------
+
+--- Sources ---
+[{'source_type': 'addition', 'source_id': '65ae5ba6-5b05-4271-ac50-bed8cc455352', 'repository_name': 'ai-shivam-core'}, {'source_type': 'additional_information', 'source_id': 'f10f8dc7-8090-4e3c-a733-46b9b61f3c50', 'repository_name': ''}, {'source_type': 'resume', 'source_id': '379006c5-7674-446e-a008-0529ba6a6b63', 'repository_name': ''}, {'source_type': 'repository', 'source_id': '7c321567-a969-4e24-84b3-5bf9e6326632', 'repository_name': 'mern-chat-app'}, {'source_type': 'repository', 'source_id': 'e0924f2e-270d-4593-9cdf-4b81a3c06744', 'repository_name': 'hacktoberfest2024'}]

@@ -1,0 +1,1 @@
+# VectorCoordinates value objects

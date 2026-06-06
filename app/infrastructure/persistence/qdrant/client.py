@@ -1,0 +1,1 @@
+from app.infrastructure.persistence.qdrant.qdrant_adapter import QdrantAdapter
