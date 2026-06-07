@@ -19,7 +19,7 @@ from app.infrastructure.persistence.mongodb.repositories.embedding_job_repositor
 # Import Adapters
 from app.infrastructure.adapters.storage.cloudinary_adapter import CloudinaryStorageAdapter
 from app.infrastructure.adapters.github.github_client_adapter import GitHubClientAdapter
-from app.infrastructure.adapters.ai.sentence_transformers_adapter import SentenceTransformersEmbeddingAdapter
+from app.infrastructure.web.dependencies import get_embedding_port
 from app.infrastructure.persistence.qdrant.qdrant_adapter import QdrantAdapter
 
 # Import Services
@@ -57,7 +57,7 @@ async def main():
         # 2. Instantiate Adapters
         storage_adapter = CloudinaryStorageAdapter()
         github_adapter = GitHubClientAdapter()
-        embedding_adapter = SentenceTransformersEmbeddingAdapter()
+        embedding_adapter = get_embedding_port()
         qdrant_adapter = QdrantAdapter()
         
         # 3. Instantiate Services

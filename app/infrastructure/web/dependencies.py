@@ -140,8 +140,20 @@ _embedding_adapter_instance = None
 def get_embedding_port() -> IEmbeddingPort:
     global _embedding_adapter_instance
     if _embedding_adapter_instance is None:
-        from app.infrastructure.adapters.ai.sentence_transformers_adapter import SentenceTransformersEmbeddingAdapter
-        _embedding_adapter_instance = SentenceTransformersEmbeddingAdapter()
+        provider = settings.EMBEDDING_PROVIDER.lower()
+        if provider == "gemini":
+            from app.infrastructure.adapters.ai.gemini_embedding_adapter import GeminiEmbeddingAdapter
+            _embedding_adapter_instance = GeminiEmbeddingAdapter()
+        elif provider == "huggingface":
+            from app.infrastructure.adapters.ai.huggingface_adapter import HuggingFaceEmbeddingAdapter
+            _embedding_adapter_instance = HuggingFaceEmbeddingAdapter()
+        else:
+            try:
+                from app.infrastructure.adapters.ai.sentence_transformers_adapter import SentenceTransformersEmbeddingAdapter
+                _embedding_adapter_instance = SentenceTransformersEmbeddingAdapter()
+            except ImportError:
+                from app.infrastructure.adapters.ai.huggingface_adapter import HuggingFaceEmbeddingAdapter
+                _embedding_adapter_instance = HuggingFaceEmbeddingAdapter()
     return _embedding_adapter_instance
 
 _vector_db_adapter_instance = None

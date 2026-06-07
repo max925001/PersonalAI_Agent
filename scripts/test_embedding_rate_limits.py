@@ -7,12 +7,12 @@ from loguru import logger
 import os
 sys.path.append(os.getcwd())
 
-from app.infrastructure.adapters.ai.sentence_transformers_adapter import SentenceTransformersEmbeddingAdapter
+from app.infrastructure.web.dependencies import get_embedding_port
 from app.application.profile.embedding_service import EmbeddingService
 
 async def main():
-    logger.info("Initializing SentenceTransformers Embedding Adapter...")
-    adapter = SentenceTransformersEmbeddingAdapter()
+    logger.info("Initializing HuggingFace/configured Embedding Adapter...")
+    adapter = get_embedding_port()
     
     logger.info("Initializing Embedding Service...")
     service = EmbeddingService(adapter, batch_size=20)

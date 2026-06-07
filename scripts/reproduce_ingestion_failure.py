@@ -13,7 +13,7 @@ from app.infrastructure.persistence.mongodb.repositories.knowledge_document_repo
 from app.infrastructure.persistence.mongodb.repositories.profile_repository import BeanieProfileRepository
 from app.application.profile.chunking_service import ChunkingService
 from app.application.profile.embedding_service import EmbeddingService
-from app.infrastructure.adapters.ai.sentence_transformers_adapter import SentenceTransformersEmbeddingAdapter
+from app.infrastructure.web.dependencies import get_embedding_port
 from app.infrastructure.persistence.qdrant.qdrant_adapter import QdrantAdapter
 
 async def main():
@@ -38,8 +38,8 @@ async def main():
         chunks = chunking_service.chunk_documents(docs)
         logger.info(f"Generated {len(chunks)} chunks.")
         
-        logger.info("Loading SentenceTransformers adapter & embedding chunks...")
-        embedding_adapter = SentenceTransformersEmbeddingAdapter()
+        logger.info("Loading HuggingFace/configured adapter & embedding chunks...")
+        embedding_adapter = get_embedding_port()
         embedding_service = EmbeddingService(embedding_adapter)
         embedded_chunks = await embedding_service.embed_chunks(chunks)
         

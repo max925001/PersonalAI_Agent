@@ -75,6 +75,7 @@ origins = [
     "http://127.0.0.1:5173",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+   "https://360b-2405-201-602f-80b-a453-6613-c170-15b0.ngrok-free.app"
 ]
 
 if settings.PUBLIC_URL:

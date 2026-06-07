@@ -15,7 +15,7 @@ from app.infrastructure.persistence.mongodb.repositories.resume_repository impor
 from app.infrastructure.persistence.mongodb.repositories.processing_status_repository import BeanieProcessingStatusRepository
 from app.infrastructure.persistence.mongodb.repositories.embedding_job_repository import BeanieEmbeddingJobRepository
 from app.infrastructure.persistence.mongodb.repositories.knowledge_document_repository import BeanieKnowledgeDocumentRepository
-from app.infrastructure.adapters.ai.sentence_transformers_adapter import SentenceTransformersEmbeddingAdapter
+from app.infrastructure.web.dependencies import get_embedding_port
 from app.infrastructure.persistence.qdrant.qdrant_adapter import QdrantAdapter
 from app.application.profile.resume_processor import ResumeProcessor
 from app.application.profile.github_service import GitHubService
@@ -59,7 +59,7 @@ async def main():
     knowledge_service = KnowledgeDocumentService(knowledge_repo)
     chunking_service = ChunkingService()
     
-    embedding_adapter = SentenceTransformersEmbeddingAdapter()
+    embedding_adapter = get_embedding_port()
     embedding_service = EmbeddingService(embedding_adapter)
     
     qdrant_adapter = QdrantAdapter()
