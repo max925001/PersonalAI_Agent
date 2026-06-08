@@ -59,10 +59,14 @@ class HuggingFaceEmbeddingAdapter(IEmbeddingPort):
         if self.use_local:
             return await self._generate_embeddings_local(texts)
 
-        # Otherwise, attempt API with a local fallback on failure
+        # Otherwise, attempt API with a local fallback on failure (only if HF_USE_LOCAL is True)
         try:
             return await self._generate_embeddings_api(texts)
         except Exception as e:
+            if not getattr(settings, "HF_USE_LOCAL", False):
+                logger.error(f"Hugging Face Inference API failed: {str(e)}. Local fallback is disabled (HF_USE_LOCAL=False) to prevent OOM crash on Render.")
+                raise EmbeddingException(f"Hugging Face Inference API failed after all retries: {str(e)}")
+            
             logger.warning(f"Hugging Face Inference API failed: {str(e)}. Switching permanently to local fallback model.")
             self.use_local = True
             return await self._generate_embeddings_local(texts)
@@ -88,30 +92,40 @@ class HuggingFaceEmbeddingAdapter(IEmbeddingPort):
 
         logger.info(f"Generating Hugging Face API embeddings for {len(texts)} texts using model {self.model_name}...")
         
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post(
-                url,
-                headers=headers,
-                json={"inputs": processed_texts}
-            )
-            
-            if response.status_code != 200:
-                raise EmbeddingException(
-                    f"Hugging Face API returned status {response.status_code}: {response.text}"
-                )
-                
-            result = response.json()
-            
-            # Handle API errors returned inside the response payload
-            if isinstance(result, dict) and "error" in result:
-                raise EmbeddingException(f"Hugging Face API error: {result['error']}")
-                
-            # Perform pooling on the API response (which may return 3D token embeddings)
-            pooled_embeddings = self._pool_api_response(result)
-            
-            # Normalize embeddings for cosine similarity
-            normalized_embeddings = [self._normalize_vector(v) for v in pooled_embeddings]
-            return normalized_embeddings
+        max_retries = 3
+        backoff = 1.0
+        for attempt in range(1, max_retries + 1):
+            try:
+                async with httpx.AsyncClient(timeout=60.0) as client:
+                    response = await client.post(
+                        url,
+                        headers=headers,
+                        json={"inputs": processed_texts}
+                    )
+                    
+                    if response.status_code != 200:
+                        raise EmbeddingException(
+                            f"Hugging Face API returned status {response.status_code}: {response.text}"
+                        )
+                        
+                    result = response.json()
+                    
+                    # Handle API errors returned inside the response payload
+                    if isinstance(result, dict) and "error" in result:
+                        raise EmbeddingException(f"Hugging Face API error: {result['error']}")
+                        
+                    # Perform pooling on the API response (which may return 3D token embeddings)
+                    pooled_embeddings = self._pool_api_response(result)
+                    
+                    # Normalize embeddings for cosine similarity
+                    normalized_embeddings = [self._normalize_vector(v) for v in pooled_embeddings]
+                    return normalized_embeddings
+            except Exception as e:
+                logger.warning(f"Hugging Face API call attempt {attempt}/{max_retries} failed: {str(e)}")
+                if attempt == max_retries:
+                    raise
+                await asyncio.sleep(backoff)
+                backoff *= 2.0
 
     def _pool_api_response(self, api_response) -> List[List[float]]:
         if not api_response:
