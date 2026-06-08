@@ -38,6 +38,8 @@ class TwilioVoicePipeline:
             del self.silence_starts[call_sid]
         if call_sid in self.is_ai_speaking:
             del self.is_ai_speaking[call_sid]
+        if hasattr(self, 'consecutive_speaking_frames') and call_sid in self.consecutive_speaking_frames:
+            del self.consecutive_speaking_frames[call_sid]
 
     async def trigger_greeting(
         self,
@@ -48,6 +50,11 @@ class TwilioVoicePipeline:
         """Generates and plays the greeting when the call connects."""
         logger.info(f"Triggering greeting for CallSid: {call_sid}")
         self.cleanup_call(call_sid)
+        
+        # Initialize consecutive speaking frames counter
+        if not hasattr(self, 'consecutive_speaking_frames'):
+            self.consecutive_speaking_frames = {}
+        self.consecutive_speaking_frames[call_sid] = 0
         
         # Start active greeting streaming task
         task = asyncio.create_task(
@@ -69,11 +76,15 @@ class TwilioVoicePipeline:
         send_clear: Callable[[], Awaitable[None]]
     ):
         """Processes a 20ms mulaw chunk from Twilio, run VAD and manages interruptions."""
+        if not hasattr(self, 'consecutive_speaking_frames'):
+            self.consecutive_speaking_frames = {}
+            
         if call_sid not in self.audio_buffers:
             self.audio_buffers[call_sid] = bytearray()
             self.user_is_speaking[call_sid] = False
             self.silence_starts[call_sid] = None
             self.is_ai_speaking[call_sid] = False
+            self.consecutive_speaking_frames[call_sid] = 0
 
         # 1. Convert chunk to PCM and calculate RMS volume for VAD
         pcm_chunk = ulaw_to_pcm(ulaw_chunk)
@@ -82,25 +93,32 @@ class TwilioVoicePipeline:
         sum_squares = sum((s / 32768.0) ** 2 for s in samples)
         rms = (sum_squares / len(samples)) ** 0.5 if samples else 0.0
         
-        rms_threshold = 0.015
+        rms_threshold = 0.04  # Raised from 0.015 to ignore line static and breathing
+        interruption_debounce_frames = 3  # Requires 3 consecutive frames (~60ms) of speaking to interrupt
         silence_timeout = 1.2 # 1.2 seconds of silence triggers response
         
         if rms > rms_threshold:
-            # User is speaking
-            # Check for Interruption (AI is currently speaking)
-            if self.is_ai_speaking.get(call_sid, False) or call_sid in self.active_stream_tasks:
-                logger.info(f"User interruption detected on CallSid {call_sid} (RMS: {rms:.4f})! Clearing AI stream.")
-                if call_sid in self.active_stream_tasks:
-                    self.active_stream_tasks[call_sid].cancel()
-                    del self.active_stream_tasks[call_sid]
-                self.is_ai_speaking[call_sid] = False
-                await send_clear()  # Tell Twilio to stop playing immediately
-                
-            self.user_is_speaking[call_sid] = True
-            self.silence_starts[call_sid] = None
+            self.consecutive_speaking_frames[call_sid] += 1
+            
+            # Check for Interruption (AI is currently speaking or working)
+            if self.consecutive_speaking_frames[call_sid] >= interruption_debounce_frames:
+                if self.is_ai_speaking.get(call_sid, False) or call_sid in self.active_stream_tasks:
+                    logger.info(f"User interruption detected on CallSid {call_sid} (RMS: {rms:.4f})! Clearing AI stream.")
+                    if call_sid in self.active_stream_tasks:
+                        self.active_stream_tasks[call_sid].cancel()
+                        del self.active_stream_tasks[call_sid]
+                    self.is_ai_speaking[call_sid] = False
+                    await send_clear()  # Tell Twilio to stop playing immediately
+                    
+                self.user_is_speaking[call_sid] = True
+                self.silence_starts[call_sid] = None
+            
+            # Collect user audio
             self.audio_buffers[call_sid].extend(ulaw_chunk)
             
         else:
+            self.consecutive_speaking_frames[call_sid] = 0
+            
             # User is silent
             if self.user_is_speaking[call_sid]:
                 if self.silence_starts[call_sid] is None:
