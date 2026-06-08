@@ -58,7 +58,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: Optional[str] = None
 
     # Embedding Settings
-    EMBEDDING_PROVIDER: str = "huggingface"
+    EMBEDDING_PROVIDER: str = "gemini"
     HF_API_TOKEN: Optional[str] = None
     HF_EMBEDDING_MODEL: str = "BAAI/bge-small-en-v1.5"
     HF_USE_LOCAL: bool = False
